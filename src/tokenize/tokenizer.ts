@@ -38,7 +38,7 @@ export class Tokenizer {
 
     const ch = this.#input[this.#count.getCount()]
     this.#count.add(ch)
-    
+    console.log('next ch', ch, this.#count.getCount())
     return ch
   }
 
@@ -57,7 +57,7 @@ export class Tokenizer {
   #backChar() {
     this.#count.back()
     const ch = this.#input[this.#count.getCount()]
-    
+    console.log('back ch', ch, this.#count.getCount())
     return ch
   }
 
@@ -106,7 +106,7 @@ export class Tokenizer {
   #switch<T extends Token>(record: Record<string, () => Token | undefined>, def?: (x?: string) => T | undefined): () => T | undefined {
     return () => {
       const ch = this.#tryNextChar()
-      if (ch == undefined) return;
+      if (ch == undefined) return def?.('');
       const f: any = record[ch]?.() ?? def?.(ch) ?? undefined
       if (f == undefined) {
         this.#backChar()
@@ -382,7 +382,8 @@ export class Tokenizer {
       } else break
     }
 
-    this.#backChar()
+    if (!this.eof()) this.#backChar()
+    console.log('take num string', content)
 
     return content.join('')
   }
@@ -409,7 +410,7 @@ export class Tokenizer {
       } else break
     }
 
-    this.#backChar()
+    if (!this.eof()) this.#backChar()
 
     return content.join('')
   }
@@ -436,7 +437,7 @@ export class Tokenizer {
       } else break
     }
 
-    this.#backChar()
+    if (!this.eof()) this.#backChar()
 
     return content.join('')
   }
@@ -590,7 +591,7 @@ export class Tokenizer {
           const n = this.#takeNumberString()
           return new NumToken(
             this.#createRange(),
-            [[content.join(''), n], {
+            [[ch, n], {
               scientific: this.#expectCharEq('e', false) ? this.#takeNumberString() : undefined,
               kind: IntKind.Point
             }]
@@ -612,8 +613,8 @@ export class Tokenizer {
         }
       })()
     } else {
-      this.#backChar()
       if (!this.#isNumber(ch)) return undefined
+      else this.#backChar()
     }
 
     content.push(this.#takeNumberString())
@@ -654,7 +655,7 @@ export class Tokenizer {
           [content.join(''), { postfix, kind: IntKind.Dec }]
         )
       } else {
-        this.#backChar()
+        if (x != null) this.#backChar()
         return new IntToken(
           this.#createRange(),
           [content.join(''), { kind: IntKind.Dec }]

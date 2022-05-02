@@ -2,6 +2,8 @@ import {
   TokenStream, Tokenizer
 } from './tokenize/tokenizer'
 
+(globalThis as any).gloom = await import('.')
+
 const tokenizer = new Tokenizer(
 // `
 // func a() -> Func<(int), int> {
@@ -74,7 +76,8 @@ pub func arrayForEach(Array<int> array, Func<int> fn){
       fn(item)
   }
 }
-arrayForEach([11,22,33,44], func(int n){ println(n) })`
+arrayForEach([11,22,33,44], func(int n){ println(n) })
+`
 )
 
 console.log(tokenizer)
