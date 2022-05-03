@@ -123,16 +123,17 @@ export class Tokenizer {
   }
 
   #takeLineComment(): LineCommentToken {
-    let ch = this.#nextChar()
+    let ch = this.#tryNextChar()
     const content = []
     while (true) {
       if (this.eof() || ch == '\n') {
+        content.push(ch)
         break
       } else {
-        ch = this.#nextChar()
+        ch = this.#tryNextChar()
       }
 
-      content.push(ch)
+      if (ch != undefined) content.push(ch)
     }
     return new LineCommentToken(this.#createRange(), content.join(''))
   }
@@ -539,6 +540,18 @@ export class Tokenizer {
       this.#createRange(),
       KeywordKind.Yield
     ),
+    'const': () => new KeywordToken(
+      this.#createRange(),
+      KeywordKind.Const
+    ),
+    'type': () => new KeywordToken(
+      this.#createRange(),
+      KeywordKind.Type
+    ),
+    'declare': () => new KeywordToken(
+      this.#createRange(),
+      KeywordKind.Declare
+    ),
 
     // Boolean
     'true': () => new BoolToken(
@@ -574,6 +587,20 @@ export class Tokenizer {
           )
         },
         'x': () => {
+          const ctn = this.#takeHexString()
+          return new IntToken(
+            this.#createRange(),
+            [ctn, { kind: IntKind.Hex }]
+          )
+        },
+        'B': () => {
+          const ctn = this.#takeBinString()
+          return new IntToken(
+            this.#createRange(),
+            [ctn, { kind: IntKind.Bin }]
+          )
+        },
+        'X': () => {
           const ctn = this.#takeHexString()
           return new IntToken(
             this.#createRange(),

@@ -1,12 +1,4 @@
 import {
-  TokenStream, Tokenizer
-} from './tokenize/tokenizer'
-
-(globalThis as any).gloom = await import('.')
-
-const tokenizer = new Tokenizer(
-`
-import {
   "./hello.gs" as hello
   // more import
 }
@@ -22,13 +14,9 @@ import {
 
 
 let a : module.Module = import ("./hello.gs")
-
 let sayHello : reflect.Value = a.searchByName("sayHello")
-
 sayHello.call<(String)>("Tom") // print "Hello, Tom!"
-`
-)
 
-console.log(tokenizer)
-
-console.log([...new TokenStream(tokenizer)])
+func A {
+  
+}

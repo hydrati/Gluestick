@@ -29,11 +29,15 @@ export abstract class Token implements Token {
 
 export abstract class Value<T> extends Token {
   abstract readonly [gloomTokenKind]: TokenKind
-
+  readonly [Symbol.toStringTag]: string | undefined
   constructor(
     range: Range,
     public readonly value: T
-  ) { super(range) }  
+  ) { super(range); this[Symbol.toStringTag] = `Token(${this.setToStringTag() ?? 'Unknown'})` }  
+
+  setToStringTag(): string | undefined {
+    return undefined
+  }
 }
 
 export enum KeywordKind {
@@ -61,7 +65,10 @@ export enum KeywordKind {
   As,
   Async,
   Await,
-  Yield
+  Yield,
+  Const,
+  Type,
+  Declare,
 }
 
 export enum SymbolKind {
@@ -151,32 +158,56 @@ export class NumToken extends Value<[[string, string], NumberProps]> {
 
 export class IdentToken extends Value<string> {
   readonly [gloomTokenKind] = TokenKind.Ident
+  setToStringTag() {
+    return `Identifier<"${this.value}">`
+  }
 }
 
 export class StringToken extends Value<string> {
   readonly [gloomTokenKind] = TokenKind.String
+  setToStringTag() {
+    return `String<${this.value.length}>`
+  }
 }
 
 export class CharToken extends Value<string> {
   readonly [gloomTokenKind] = TokenKind.Char
+  setToStringTag() {
+    return `Char`
+  }
 }
 
 export class BoolToken extends Value<boolean> {
   readonly [gloomTokenKind] = TokenKind.Bool
+  setToStringTag() {
+    return `Bool<${this.value ? 'true' : 'false'}>`
+  }
 }
 
 export class KeywordToken extends Value<KeywordKind> {
   readonly [gloomTokenKind] = TokenKind.Keyword
+  setToStringTag() {
+      return `Keyword<${KeywordKind[this.value]}>`
+  }
 }
 
 export class SymbolToken extends Value<SymbolKind> {
   readonly [gloomTokenKind] = TokenKind.Symbol
+  setToStringTag() {
+    return `Symbol<${SymbolKind[this.value]}>`
+  }
 }
 
 export class LineCommentToken extends Value<string> {
   readonly [gloomTokenKind] = TokenKind.LineComment
+  setToStringTag() {
+    return `LineComment<${this.value.length}>`
+  }
 }
 
 export class BlockCommentToken extends Value<string> {
   readonly [gloomTokenKind] = TokenKind.BlockComment
+  setToStringTag() {
+    return `BlockComment<${this.value.length}>`
+  }
 }
